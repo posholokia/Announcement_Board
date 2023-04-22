@@ -1,0 +1,13 @@
+{% extends 'flatpages/default.html' %}
+{% block content %}
+create_announcement
+<form action="" method="post">
+    {% csrf_token %}
+    {% load static %}
+    <script type="text/javascript" src="{% static 'ckeditor/ckeditor-init.js' %}"></script>
+    <script type="text/javascript" src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
+
+    {{ form.as_p }}
+    <input type="submit" value="Save" />
+</form>
+{% endblock content %}

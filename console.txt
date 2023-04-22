@@ -1,0 +1,26 @@
+python3 -m venv venv
+source venv/bin/activate
+pip install django
+pip install django-ckeditor
+pip install python-dotenv
+pip install django-allauth
+cd Announcement_Board
+django-admin startproject Announcement_Board
+python3 manage.py migrate
+python3 manage.py makemigrations
+python3 manage.py collectstatic
+python3 manage.py createsuperuser
+python manage.py startapp Announcement
+python manage.py startapp accounts
+python3 manage.py runserver
+
+python3 manage.py shell
+from Announcement.models import *
+Announcement.objects.all()[0].values()
+ResponseToAnnounce.objects.all().filter(response_announcement__pk=1, user__username='matvey') .values('user__username')
+
+
+git add .
+git commit -m 'create project'
+git remote add origin https://github.com/posholokia/announce_board.git
+git push origin main
