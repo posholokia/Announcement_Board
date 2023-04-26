@@ -12,6 +12,7 @@ python3 manage.py collectstatic
 python3 manage.py createsuperuser
 python manage.py startapp Announcement
 python manage.py startapp accounts
+python3 -m smtpd -n -c DebuggingServer localhost:1025
 python3 manage.py runserver
 
 python3 manage.py shell

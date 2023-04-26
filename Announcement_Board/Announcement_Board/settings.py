@@ -41,11 +41,15 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # added
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
     'ckeditor',
     'Announcement.apps.AnnouncementConfig',
     'django.contrib.sites',
     'django.contrib.flatpages',
-    'accounts.apps.AccountsConfig'
+    'accounts.apps.AccountsConfig',
+
 ]
 
 MIDDLEWARE = [
@@ -80,6 +84,11 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'Announcement_Board.wsgi.application'
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
 
 
 # Database
@@ -127,8 +136,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
@@ -141,8 +148,11 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
-ACCOUNT_EMAIL_VERIFICATION = True
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
 
+# SERVER_EMAIL = os.getenv('SERVER_EMAIL')
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"  # TODO для разработки
+# EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 DEFAULT_FROM_EMAIL = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST = 'smtp.yandex.ru'
 EMAIL_PORT = 465
