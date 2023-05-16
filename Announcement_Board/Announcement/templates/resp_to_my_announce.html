@@ -1,0 +1,29 @@
+{% extends 'flatpages/default.html' %}
+
+{% block cat %}
+{% endblock cat %}
+
+{% block headnews %}
+{% endblock headnews %}
+<!-- Отключение экранирования, чтобы не выводились html теги вместо видео -->
+
+{% block content %}
+
+resp_to_my_announce.html
+    <form action="" method="get">
+        {# Переменная, которую мы передали через контекст, может сгенерировать нам форму с полями #}
+        {{ filterset.form.as_p }}
+        {# Добавим кнопку отправки данных формы #}
+        <input type="submit" value="Найти" />
+    </form>
+<table>
+    <tr>
+        <th>Отклик</th>
+        <th>Объявление</th>
+        <th>Принять/Удалить</th>
+    </tr>
+{% for response in my_responses %}
+    <tr><th>{{ response }} </th><th>{{ response.response_announcement }}</th><th><input class="btn-primary" type="button" value="Принять"><input class="btn-secondary" type="button" value="Удалить"></th></tr>
+{% endfor %}
+</table>
+{% endblock content %}

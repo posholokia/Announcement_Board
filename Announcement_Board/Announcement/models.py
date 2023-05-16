@@ -10,7 +10,7 @@ class Announcement(models.Model):
         ('Tank', 'Танки'),
         ('Healer', 'Хилы'),
         ('DD', 'ДД'),
-        ('vendor', 'Торговцы'),
+        ('Vendor', 'Торговцы'),
         ('GuildMaster', 'Гильдмастеры'),
         ('QuestGiver', 'Квестгиверы'),
         ('Smith', 'Кузнецы'),
@@ -18,17 +18,20 @@ class Announcement(models.Model):
         ('Alchemist', 'Зельевары'),
         ('SpellMaster', 'Мастера заклинаний'),
     )
+    author = models.ForeignKey(User, related_name='author', on_delete=models.CASCADE)
     category = models.CharField(max_length=16, choices=CATEGORY)
     title = models.CharField(max_length=64)
     text = RichTextUploadingField(null=True, config_name='default')
     published_date = models.DateField(auto_now_add=True)
-    
     
     def get_absolute_url(self):
         return reverse('announce', args=[str(self.id)])
 
     def __str__(self):
         return f'{self.title}'
+
+    def preview(self):
+        return f'{self.text[0:49]}'
     
 
 class ResponseToAnnounce(models.Model):
@@ -38,5 +41,8 @@ class ResponseToAnnounce(models.Model):
     
     def get_absolute_url(self):
         return reverse('announce', args=[str(self.response_announcement.id)])
+
+    def __str__(self):
+        return f'{self.text[0:9]}'
 
     

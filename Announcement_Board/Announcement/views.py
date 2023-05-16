@@ -1,9 +1,13 @@
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+
+from .filters import ResponseFilter
 from .forms import AnnouncementForm, ResponseForm
 from .models import Announcement, ResponseToAnnounce
 from django.urls import reverse
+from django.contrib.auth.decorators import login_required
+
 
 class AnnouncementList(ListView):
     model = Announcement
@@ -11,13 +15,29 @@ class AnnouncementList(ListView):
     template_name = 'announcement_list.html'
     context_object_name = 'list'
     
-    
+    def get_queryset(self):
+        category = self.kwargs.get('category', None)
+        if category:
+            queryset = Announcement.objects.filter(category=category)
+        else:
+            queryset = Announcement.objects.all()
+        return queryset
+
+
 class CreateAnnouncement(CreateView):
     form_class = AnnouncementForm
     model = Announcement
     template_name = 'create_announcement.html'
-    
-    
+
+    def form_valid(self, form):
+        user_name = self.request.user  #
+        form = AnnouncementForm(self.request.POST)  #
+        form_announce = form.save(commit=False)
+        form_announce.author = user_name  #
+        form_announce.save()
+        return super().form_valid(form)
+
+
 class DetailAnnouncement(DetailView):
     model = Announcement
     template_name = 'announce.html'
@@ -37,10 +57,10 @@ class UpdateAnnouncement(UpdateView):
     template_name = 'edit_announcement.html'
     
     
-class Response(CreateView):
+class AddResponse(CreateView):
     form_class = ResponseForm
     model = ResponseToAnnounce
-    template_name = 'response.html'
+    template_name = 'add_response.html'
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -60,6 +80,42 @@ class Response(CreateView):
         form_announce.user = user_name  # и юзером
         form_announce.save()
         return super().form_valid(form)
+
+
+class ResponseList(ListView):
+    model = ResponseToAnnounce
+    ordering = '-id'
+    template_name = 'resp_to_my_announce.html'
+    context_object_name = 'my_responses'
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        self.filterset = ResponseFilter(self.request.GET, queryset)
+        return self.filterset.qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Добавляем в контекст объект фильтрации.
+        context['filterset'] = self.filterset
+        return context
+
+# @login_required
+class MyAnnounce(ListView):
+    model = Announcement
+    ordering = '-published_date'
+    template_name = 'my_announcement.html'
+    context_object_name = 'my_announce'
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = Announcement.objects.filter(author=user)
+        return queryset
+
+    def get_context_data(self, **kwargs):  # TODO надо сделать свой фильтр для вывода кол-ва откликов
+        context = super().get_context_data(**kwargs)
+
+        context['response'] = ResponseToAnnounce.objects.filter(response_announcement__author=self.request.user)
+        return context
 
 
 # функция для удаления отклика

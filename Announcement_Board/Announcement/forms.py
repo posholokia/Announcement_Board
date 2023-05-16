@@ -7,7 +7,8 @@ class AnnouncementForm(forms.ModelForm):
     # content = forms.CharField(widget=CKEditorWidget())
     class Meta:
         model = Announcement
-        fields = '__all__'
+        # fields = '__all__'
+        exclude = ('author', )
         
 
 class ResponseForm(forms.ModelForm):

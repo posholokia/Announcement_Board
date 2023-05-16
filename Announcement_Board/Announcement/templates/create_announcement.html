@@ -1,6 +1,7 @@
 {% extends 'flatpages/default.html' %}
 {% block content %}
-create_announcement
+create_announcement.html
+<p>Login User: {{ user }}
 <form action="" method="post">
     {% csrf_token %}
     {% load static %}

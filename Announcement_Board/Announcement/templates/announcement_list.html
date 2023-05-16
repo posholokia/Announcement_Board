@@ -1,10 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-Список обьявлений
-</body>
-</html>
+{% extends 'flatpages/default.html' %}
+
+{% block content %}
+announcement_list.html
+{% autoescape off %}
+<h3 class="pb-4 mb-4 fst-italic border-bottom">Последние объявления</h3>
+<article class="blog-post">
+    {% for announce in list %}
+        <h2 class="blog-post-title"><a href="{% url 'announce' pk=announce.id %}">{{ announce.title }}</a></h2>
+        <p class="blog-post-meta">{{ announce.published_date }} | {{ announce.get_category_display }}</p>
+        <p>{{ announce.preview }}</p>
+    {% endfor %}
+</article>
+
+{% endautoescape %}
+{% endblock content %}
+
+

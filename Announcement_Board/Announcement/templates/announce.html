@@ -1,24 +1,32 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'flatpages/default.html' %}
+
+{% block cat %}
+{% endblock cat %}
+
+{% block headnews %}
+{% endblock headnews %}
 <!-- Отключение экранирования, чтобы не выводились html теги вместо видео -->
+
+{% block content %}
+announce.html
 {% autoescape off %}
-Category:
-{{ announce.category|safe }}
-Announce:
-{{ announce.text }}
-{% endautoescape %}
+Автор: {{ announce.author.username }}
+Category: {{ announce.category|safe }}
+<p>Announce: {{ announce.text }}
+<hr>
+
+
 <!--TODO сделать кнопку доступной только пользователю и только если он не откликнулся-->
-{% if not responses %}
-<p class="test-center" ><a href="{% url 'response' announce.id %}" class="btn btn-primary btn-lg">Откликнуться</a></p>
-{% else %}
-Вы откликнулись на объявление
-<p class="test-center" ><a href="{% url 'remove_response' announce.id %}" class="btn btn-primary btn-lg">Убрать отклик</a></p>
+{% if request.user.is_authenticated %}
+    {% if not responses %}
+    <p class="test-center" ><a href="{% url 'add_response' announce.id %}" class="btn btn-primary btn-lg">Откликнуться</a></p>
+    {% else %}
+    Вы откликнулись на объявление
+    <p class="test-center" ><a href="{% url 'remove_response' announce.id %}" class="btn btn-primary btn-lg">Убрать отклик</a></p>
+    {% endif %}
 {% endif %}
 
-</body>
-</html>
+{% endautoescape %}
+{% endblock content %}
+
+

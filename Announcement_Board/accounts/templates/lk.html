@@ -1,0 +1,19 @@
+{% extends 'flatpages/default.html' %}
+
+{% block cat %}
+{% endblock cat %}
+
+{% block headnews %}
+{% endblock headnews %}
+<!-- Отключение экранирования, чтобы не выводились html теги вместо видео -->
+
+{% block content %}
+lk.html
+<p>Аватар который еще не сделан</p>
+<p>Имя пользователя: {{ request.user.username }}</p>
+<p>E-mail: {{ request.user.email }}</p>
+<p><a href="#">Редактировать профиль</a></p>
+
+<p><a href="{% url 'my_announce' %}">Мои объявления</a></p>
+<p><a href="#">Мои отклики</a></p>
+{% endblock content %}

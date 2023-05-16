@@ -1,0 +1,23 @@
+{% extends 'flatpages/default.html' %}
+
+{% block cat %}
+{% endblock cat %}
+
+{% block headnews %}
+{% endblock headnews %}
+<!-- Отключение экранирования, чтобы не выводились html теги вместо видео -->
+
+{% block content %}
+my_announcement.html
+<p><a href="{% url 'my_responses' %}">Все отклики</a></p>
+{% load custom_filters %}
+Список обьявлений
+{% for announce in my_announce %}
+<p>Объявление: {{ announce }}  |  Отклики : {{ response|slice_qs:announce|length }}
+    {% if response|slice_qs:announce|length > 0 %}
+        <a href="#">Просмотреть</a>
+    {% endif %}
+{% endfor %}
+
+
+{% endblock content %}

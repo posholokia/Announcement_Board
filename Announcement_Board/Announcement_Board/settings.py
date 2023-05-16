@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django.contrib.flatpages',
     'accounts.apps.AccountsConfig',
+    'django_filters',
 
 ]
 
@@ -124,7 +125,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ru'
 
 TIME_ZONE = 'UTC'
 
@@ -132,6 +133,13 @@ USE_I18N = True
 
 USE_TZ = True
 
+
+ACCOUNT_FORMS = {
+
+    'signup': 'accounts.forms.SignUpForm',
+    # 'signup': 'profiles.forms.SignUp',
+
+}
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
@@ -142,6 +150,7 @@ USE_TZ = True
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_REDIRECT_URL = '/board'
+ACCOUNT_LOGOUT_REDIRECT_URL ="/accounts/login"
 SITE_URL = 'http://127.0.0.1:8000/'
 
 ACCOUNT_EMAIL_REQUIRED = True

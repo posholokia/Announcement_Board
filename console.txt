@@ -4,6 +4,7 @@ pip install django
 pip install django-ckeditor
 pip install python-dotenv
 pip install django-allauth
+python -m pip install django-filter
 cd Announcement_Board
 django-admin startproject Announcement_Board
 python3 manage.py migrate
