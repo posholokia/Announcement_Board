@@ -107,6 +107,7 @@ class ResponseList(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # Добавляем в контекст объект фильтрации.
+        context['filterset'] = self.filterset
         context['filter_response'] = self.filter_response
         return context
 
