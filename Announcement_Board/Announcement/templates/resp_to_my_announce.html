@@ -10,33 +10,42 @@
 {% block content %}
 
 resp_to_my_announce.html
-    <form action="" method="get">
-        {# Переменная, которую мы передали через контекст, может сгенерировать нам форму с полями #}
-        {{ filterset.form.as_p }}
-        {# Добавим кнопку отправки данных формы #}
-        <input type="submit" value="Найти" />
-    </form>
-<table>
-    <tr>
-        <th>Отклик</th>
-        <th>Объявление</th>
-        <th>Принять/Удалить</th>
-    </tr>
-{% for response in my_responses %}
-    <tr>
-        <th>{{ response }} </th>
-        <th>{{ response.response_announcement }}</th>
-        <th>
-            <form action="{% url 'my_responses' %}" method="GET">
-                <input class="btn-primary" type="submit" name="button" value="Принять">
-                <input type="hidden" name="resp_id" value="{{ response.id }}">
-            </form>
-            <form action="{% url 'my_responses' %}" method="GET">
-                <input class="btn-secondary" type="submit" name="button" value="Отклонить">
-                <input type="hidden" name="resp_id" value="{{ response.id }}">
-            </form>
-        </th>
-    </tr>
-{% endfor %}
+<form action="" method="get">
+    {{ filterset.form.as_p }}
+    <input type="submit" value="Найти" />
+</form>
+
+{% if filter_response|length == 0 %}
+    <h2>Нет новых откликов!</h2>
+Длина: {{ filter_response|length }}
+{% else %}
+Длина: {{ filter_response|length }}
+    <table>
+        <tr>
+            <th>Отклик</th>
+            <th>Объявление</th>
+            <th>Принять/Удалить</th>
+        </tr>
+    {% for response in my_responses %}
+        <tr>
+            <th>{{ response }} </th>
+            <th>{{ response.response_announcement }}</th>
+            <th>
+                {% if response.accepted == True %}
+                    <div class="btn-success">Принято</div>
+                {% else %}
+                <form action="{% url 'my_responses' %}" method="GET">
+                    <input class="btn-primary" type="submit" name="button" value="Принять">
+                    <input type="hidden" name="resp_id" value="{{ response.id }}">
+                </form>
+                <form action="{% url 'my_responses' %}" method="GET">
+                    <input class="btn-secondary" type="submit" name="button" value="Отклонить">
+                    <input type="hidden" name="resp_id" value="{{ response.id }}">
+                </form>
+                {% endif %}
+            </th>
+        </tr>
+    {% endfor %}
+{% endif %}
 </table>
 {% endblock content %}

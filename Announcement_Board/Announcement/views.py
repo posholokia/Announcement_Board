@@ -89,25 +89,25 @@ class ResponseList(ListView):
     context_object_name = 'my_responses'
     
     def get(self, request, *args, **kwargs):
-        print('request.GET:', request.GET['resp_id'])
-        if request.GET['button'] == 'Принять':
+        # get('button') чтобы не получать ошибку при переходе на страницу при отсутствии в request.GET ключа button
+        if request.GET.get('button') == 'Принять':
             response = ResponseToAnnounce.objects.get(pk=request.GET['resp_id'])
             response.accept()
-        if request.GET['button'] == 'Отклонить':
+        if request.GET.get('button') == 'Отклонить':
             response = ResponseToAnnounce.objects.get(pk=request.GET['resp_id'])
             response.decline()
         return super().get(self, request, *args, **kwargs)
     
-
     def get_queryset(self):
         queryset = super().get_queryset()
         self.filterset = ResponseFilter(self.request.GET, queryset)
-        return self.filterset.qs
+        self.filter_response = self.filterset.qs.exclude(accepted=False)
+        return self.filter_response
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # Добавляем в контекст объект фильтрации.
-        context['filterset'] = self.filterset
+        context['filter_response'] = self.filter_response
         return context
 
 
