@@ -23,7 +23,20 @@ resp_to_my_announce.html
         <th>Принять/Удалить</th>
     </tr>
 {% for response in my_responses %}
-    <tr><th>{{ response }} </th><th>{{ response.response_announcement }}</th><th><input class="btn-primary" type="button" value="Принять"><input class="btn-secondary" type="button" value="Удалить"></th></tr>
+    <tr>
+        <th>{{ response }} </th>
+        <th>{{ response.response_announcement }}</th>
+        <th>
+            <form action="{% url 'my_responses' %}" method="GET">
+                <input class="btn-primary" type="submit" name="button" value="Принять">
+                <input type="hidden" name="resp_id" value="{{ response.id }}">
+            </form>
+            <form action="{% url 'my_responses' %}" method="GET">
+                <input class="btn-secondary" type="submit" name="button" value="Отклонить">
+                <input type="hidden" name="resp_id" value="{{ response.id }}">
+            </form>
+        </th>
+    </tr>
 {% endfor %}
 </table>
 {% endblock content %}

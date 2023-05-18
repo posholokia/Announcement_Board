@@ -38,11 +38,22 @@ class ResponseToAnnounce(models.Model):
     response_announcement = models.ForeignKey('Announcement', related_name='response', on_delete=models.CASCADE)
     user = models.ForeignKey(User, related_name='user', on_delete=models.CASCADE)
     text = models.TextField(max_length=256)
+    accepted = models.BooleanField(null=True, default=None)
+    
+    def accept(self):
+        self.accepted = True
+        self.save()
+        
+    def decline(self):
+        self.accepted = False
+        self.save()
     
     def get_absolute_url(self):
         return reverse('announce', args=[str(self.response_announcement.id)])
 
     def __str__(self):
         return f'{self.text[0:9]}'
+    
+    
 
     

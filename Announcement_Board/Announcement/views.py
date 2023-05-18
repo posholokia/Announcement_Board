@@ -87,6 +87,17 @@ class ResponseList(ListView):
     ordering = '-id'
     template_name = 'resp_to_my_announce.html'
     context_object_name = 'my_responses'
+    
+    def get(self, request, *args, **kwargs):
+        print('request.GET:', request.GET['resp_id'])
+        if request.GET['button'] == 'Принять':
+            response = ResponseToAnnounce.objects.get(pk=request.GET['resp_id'])
+            response.accept()
+        if request.GET['button'] == 'Отклонить':
+            response = ResponseToAnnounce.objects.get(pk=request.GET['resp_id'])
+            response.decline()
+        return super().get(self, request, *args, **kwargs)
+    
 
     def get_queryset(self):
         queryset = super().get_queryset()
