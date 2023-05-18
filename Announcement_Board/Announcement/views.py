@@ -99,6 +99,7 @@ class ResponseList(ListView):
         context['filterset'] = self.filterset
         return context
 
+
 # @login_required
 class MyAnnounce(ListView):
     model = Announcement
@@ -125,4 +126,8 @@ def remove_response(request, pk):
     response = ResponseToAnnounce.objects.all().filter(response_announcement__pk=pk, user=user)
     response.delete()  # и удаляем
     return HttpResponseRedirect(reverse('announce', args=[pk]))  # перенаправляем на страницу с объявлением
+
+
+def to_home_page(request):
+    return redirect('list')
     
