@@ -159,6 +159,12 @@ ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
 
+CELERY_BROKER_URL = 'redis://localhost:6379'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+
 # SERVER_EMAIL = os.getenv('SERVER_EMAIL')
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"  # TODO для разработки
 # EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
