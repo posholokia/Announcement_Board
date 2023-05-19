@@ -15,7 +15,7 @@ class AnnouncementList(ListView):
     template_name = 'announcement_list.html'
     context_object_name = 'list'
     
-    def get_queryset(self):
+    def get_queryset(self):  # сортировка по категориям
         category = self.kwargs.get('category', None)
         if category:
             queryset = Announcement.objects.filter(category=category)
@@ -30,10 +30,10 @@ class CreateAnnouncement(CreateView):
     template_name = 'create_announcement.html'
     
     def form_valid(self, form):
-        user_name = self.request.user  #
-        form = AnnouncementForm(self.request.POST)  #
+        user_name = self.request.user  # получаем текущего юзера
+        form = AnnouncementForm(self.request.POST)  # данные формы
         form_announce = form.save(commit=False)
-        form_announce.author = user_name  #
+        form_announce.author = user_name  # подставляем текущего юера в поле автор
         form_announce.save()
         return super().form_valid(form)
 
@@ -46,8 +46,9 @@ class DetailAnnouncement(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         username = self.request.user.username
-        context['responses'] = ResponseToAnnounce.objects.all().filter(response_announcement__pk=self.kwargs['pk'],
+        context['sent_response'] = ResponseToAnnounce.objects.all().filter(response_announcement__pk=self.kwargs['pk'],
                                                                        user__username=username)
+        context['all_responses'] = ResponseToAnnounce.objects.all().filter(response_announcement__pk=self.kwargs['pk'])
         return context
 
 

@@ -57,6 +57,7 @@
   {% block cat %}
   <div class="nav-scroller py-1 mb-2">
     <nav class="nav d-flex justify-content-between">
+      <a class="p-2 link-secondary" href="{% url 'list' %}">Все категории</a>
       <a class="p-2 link-secondary" href="{% url 'category' category='Tank' %}">Танки</a>
       <a class="p-2 link-secondary" href="{% url 'category' category='Healer' %}">Хилы</a>
       <a class="p-2 link-secondary" href="{% url 'category' category='DD' %}">ДД</a>
