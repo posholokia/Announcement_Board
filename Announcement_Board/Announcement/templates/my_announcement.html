@@ -15,7 +15,7 @@ my_announcement.html
 {% for announce in my_announce %}
 <p>Объявление: {{ announce }}  |  Отклики : {{ response|slice_qs:announce|length }}
     {% if response|slice_qs:announce|length > 0 %}
-        <a href="#">Просмотреть</a>
+        <a href="{% url 'my_responses' %}?announce_title={{ announce.title }}">Просмотреть</a>
     {% endif %}
 {% endfor %}
 

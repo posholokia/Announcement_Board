@@ -124,7 +124,7 @@ class ResponseList(ListView):
 
 
 # @login_required
-class MyAnnounce(ListView):  # TODO сюда нет перехода в темплейтах
+class MyAnnounce(ListView):
     model = Announcement
     ordering = '-published_date'
     template_name = 'my_announcement.html'
@@ -135,10 +135,11 @@ class MyAnnounce(ListView):  # TODO сюда нет перехода в темп
         queryset = Announcement.objects.filter(author=user)
         return queryset
     
-    def get_context_data(self, **kwargs):  # TODO надо сделать свой фильтр для вывода кол-ва откликов
+    def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # получаем все отклики, которые оставил пользователь
-        context['response'] = ResponseToAnnounce.objects.filter(response_announcement__author=self.request.user)
+        context['response'] = ResponseToAnnounce.objects.filter(
+            response_announcement__author=self.request.user).exclude(accepted=False)
         return context
 
 
