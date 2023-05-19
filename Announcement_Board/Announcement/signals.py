@@ -1,6 +1,6 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver  # импортируем нужный декоратор
-from .tasks import send_mail_post
+from .tasks import send_mail_response
 from .models import ResponseToAnnounce
 
 
@@ -8,7 +8,9 @@ from .models import ResponseToAnnounce
 @receiver(post_save, sender=ResponseToAnnounce)
 def notify_author_response(sender, instance, created, **kwargs):
     if created:
+        author = instance.response_announcement.author.username
+        announce = instance.response_announcement.title
         email = [instance.response_announcement.author.email]
-        send_mail_post.apply_async((instance.text, email))
+        send_mail_response.apply_async((instance.text, email, author, announce))
 
     

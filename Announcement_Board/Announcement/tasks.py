@@ -7,15 +7,18 @@ from django.core.mail import EmailMultiAlternatives
 
 
 @shared_task
-def send_mail_post(text, email):
+def send_mail_response(text, email, author, announce):
     html_content = render_to_string(
         'send_mail_response.html',
         {
             'text': text[:49],
+            'author': author,
+            'announce': announce,
+            'link': f'{settings.SITE_URL}/board/my_announcement/responses'
         }
     )
     msg = EmailMultiAlternatives(
-        subject='67886',
+        subject='Новый отклик на Ваше объявление!',
         body='',
         from_email=settings.DEFAULT_FROM_EMAIL,
         to=email,

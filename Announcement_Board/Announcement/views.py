@@ -112,7 +112,8 @@ class ResponseList(ListView):
     def get_queryset(self):
         queryset = super().get_queryset()
         self.filterset = ResponseFilter(self.request.GET, queryset)  # фильтр отклков юзером
-        self.new_response = self.filterset.qs.exclude(accepted=False)  # показываем только новые и принятые отклики
+        self.new_response = self.filterset.qs.exclude(accepted=False).filter(
+            response_announcement__author=self.request.user)  # показываем только новые и принятые отклики
         return self.new_response
     
     def get_context_data(self, **kwargs):
