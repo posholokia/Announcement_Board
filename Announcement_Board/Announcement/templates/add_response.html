@@ -1,12 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'flatpages/default.html' %}
+
+{% block cat %}
+{% endblock cat %}
+
+{% block headnews %}
+{% endblock headnews %}
+<!-- Отключение экранирования, чтобы не выводились html теги вместо видео -->
+
+{% block content %}
 response.html
-<!-- ограничим возможность отправления нескольких откликов от одного пользователя на одно и тоже объявление-->
+<!-- если отклика нет, пользователю доступна форма для его отправки-->
 {% if not responses %}
 {{ user }}
 <form action="" method="post">
@@ -15,7 +18,7 @@ response.html
     <input type="submit" value="Save" />
 </form>
 {% else %}
-Вы уже откликнулись!
+<!--если отклик есть, выводим соответствующее сообщение-->
+<h3>Вы уже оставили отклик ранее!</h3>
 {% endif %}
-</body>
-</html>
+{% endblock content %}

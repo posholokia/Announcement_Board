@@ -28,7 +28,7 @@ class CreateAnnouncement(CreateView):
     form_class = AnnouncementForm
     model = Announcement
     template_name = 'create_announcement.html'
-
+    
     def form_valid(self, form):
         user_name = self.request.user  #
         form = AnnouncementForm(self.request.POST)  #
@@ -42,21 +42,21 @@ class DetailAnnouncement(DetailView):
     model = Announcement
     template_name = 'announce.html'
     context_object_name = 'announce'
-
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         username = self.request.user.username
         context['responses'] = ResponseToAnnounce.objects.all().filter(response_announcement__pk=self.kwargs['pk'],
                                                                        user__username=username)
         return context
-    
-    
+
+
 class UpdateAnnouncement(UpdateView):
     form_class = AnnouncementForm
     model = Announcement
     template_name = 'edit_announcement.html'
-    
-    
+
+
 class AddResponse(CreateView):
     form_class = ResponseForm
     model = ResponseToAnnounce
@@ -68,6 +68,16 @@ class AddResponse(CreateView):
         context['responses'] = ResponseToAnnounce.objects.all().filter(response_announcement__pk=self.kwargs['pk'],
                                                                        user__username=username)
         return context
+    
+    def post(self, request, *args, **kwargs):
+        # ограничим возможность отправки нескольких откликов одним пользователем на одно и то же объявление
+        username = self.request.user.username
+        sent_response = ResponseToAnnounce.objects.all().filter(response_announcement__pk=self.kwargs['pk'],
+                                                                user__username=username)
+        if sent_response:  # если отклик уже есть, то обновим страницу.
+            # В шаблоне будет выведено сообщение, что отклик уже был отправлен
+            return redirect('add_response', pk=self.kwargs['pk'])
+        return super().post(self, request, *args, **kwargs)
     
     # в форме нельзя выбрать к какому объявлению мы отправляем отклик
     # поэтому нужное объявление нужно получить из формы и подставить в модель
@@ -90,7 +100,7 @@ class ResponseList(ListView):
     
     def get(self, request, *args, **kwargs):
         # get('button') чтобы не получать ошибку при переходе на страницу при отсутствии в request.GET ключа button
-        if request.GET.get('button') == 'Принять':
+        if request.GET.get('button') == 'Принять':  # помечаем отклики как принятые/отклоненные
             response = ResponseToAnnounce.objects.get(pk=request.GET['resp_id'])
             response.accept()
         if request.GET.get('button') == 'Отклонить':
@@ -100,33 +110,32 @@ class ResponseList(ListView):
     
     def get_queryset(self):
         queryset = super().get_queryset()
-        self.filterset = ResponseFilter(self.request.GET, queryset)
-        self.filter_response = self.filterset.qs.exclude(accepted=False)
-        return self.filter_response
-
+        self.filterset = ResponseFilter(self.request.GET, queryset)  # фильтр отклков юзером
+        self.new_response = self.filterset.qs.exclude(accepted=False)  # показываем только новые и принятые отклики
+        return self.new_response
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Добавляем в контекст объект фильтрации.
         context['filterset'] = self.filterset
-        context['filter_response'] = self.filter_response
+        context['new_response'] = self.new_response
         return context
 
 
 # @login_required
-class MyAnnounce(ListView):
+class MyAnnounce(ListView):  # TODO сюда нет перехода в темплейтах
     model = Announcement
     ordering = '-published_date'
     template_name = 'my_announcement.html'
     context_object_name = 'my_announce'
-
+    
     def get_queryset(self):
         user = self.request.user
         queryset = Announcement.objects.filter(author=user)
         return queryset
-
+    
     def get_context_data(self, **kwargs):  # TODO надо сделать свой фильтр для вывода кол-ва откликов
         context = super().get_context_data(**kwargs)
-
+        # получаем все отклики, которые оставил пользователь
         context['response'] = ResponseToAnnounce.objects.filter(response_announcement__author=self.request.user)
         return context
 
@@ -140,6 +149,5 @@ def remove_response(request, pk):
     return HttpResponseRedirect(reverse('announce', args=[pk]))  # перенаправляем на страницу с объявлением
 
 
-def to_home_page(request):
+def to_home_page(request):  # перенаправление с SITE_URL на домашнюю страницу
     return redirect('list')
-    

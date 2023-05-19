@@ -15,11 +15,11 @@ resp_to_my_announce.html
         <input type="submit" value="Найти" />
     </form>
 
-{% if filter_response|length == 0 %}
+{% if new_response|length == 0 %}
     <h2>Нет новых откликов!</h2>
-Длина: {{ filter_response|length }}
+Длина: {{ new_response|length }}
 {% else %}
-Длина: {{ filter_response|length }}
+Длина: {{ new_response|length }}
     <table>
         <tr>
             <th>Отклик</th>
