@@ -17,7 +17,7 @@ Category: {{ announce.get_category_display }}
 <hr>
 Уже откликнулось: {{ all_responses|slice_qs:announce|length }}
 
-<!--TODO сделать кнопку доступной только пользователю и только если он не откликнулся-->
+<!--TODO сделать кнопку недоступной автору-->
 {% if request.user.is_authenticated %}
     {% if not sent_response %}
     <p class="test-center" ><a href="{% url 'add_response' announce.id %}" class="btn btn-primary btn-lg">Откликнуться</a></p>

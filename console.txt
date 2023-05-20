@@ -19,6 +19,7 @@ python manage.py startapp accounts
 python3 -m smtpd -n -c DebuggingServer localhost:1025
 python3 manage.py runserver
 
+cd Announcement_Board
 celery -A Announcement_Board worker -l INFO
 celery -A Announcement worker -l INFO
 
