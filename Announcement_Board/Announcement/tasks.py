@@ -38,7 +38,7 @@ def send_mail_accept_resp(email, announce, pk, username):
         }
     )
     msg = EmailMultiAlternatives(
-        subject='Новый отклик на Ваше объявление!',
+        subject='Ваш отклик принят!',
         body='',
         from_email=settings.DEFAULT_FROM_EMAIL,
         to=email,
