@@ -18,6 +18,7 @@ Category: {{ announce.get_category_display }}
 Уже откликнулось: {{ all_responses|slice_qs:announce|length }}
 
 <!--отклик доступен только зарегистрированному пользователю и недоступен самому автору объявления -->
+{#
 {% if request.user.is_authenticated and announce.author != request.user %}
     {% if not sent_response %}
     <p class="test-center" ><a href="{% url 'add_response' announce.id %}" class="btn btn-primary btn-lg">Откликнуться</a></p>
@@ -27,7 +28,7 @@ Category: {{ announce.get_category_display }}
     <p class="test-center" ><a href="{% url 'remove_response' announce.id %}" class="btn btn-primary btn-lg">Убрать отклик</a></p>
     {% endif %}
 {% endif %}
-
+#}
 {% endautoescape %}
 {% endblock content %}
 

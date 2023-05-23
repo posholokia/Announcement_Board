@@ -23,6 +23,7 @@ class Announcement(models.Model):
     title = models.CharField(max_length=64)
     text = RichTextUploadingField(null=True, config_name='default')
     published_date = models.DateField(auto_now_add=True)
+    sent_mail = models.BooleanField(default=False)
     
     def get_absolute_url(self):
         return reverse('announce', args=[str(self.id)])

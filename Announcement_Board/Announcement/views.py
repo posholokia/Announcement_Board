@@ -14,7 +14,7 @@ class AnnouncementList(ListView):
     ordering = '-published_date'
     template_name = 'announcement_list.html'
     context_object_name = 'list'
-    
+
     def get_queryset(self):  # сортировка по категориям на главной по ссылкам в
         category = self.kwargs.get('category', None)
         if category:
@@ -28,7 +28,16 @@ class CreateAnnouncement(CreateView):
     form_class = AnnouncementForm
     model = Announcement
     template_name = 'create_announcement.html'
-    
+
+    def get_form_kwargs(self):
+        """
+        В форме для группы пользователей доступно поле для отправки письма после создания объявления всем.
+        В kwargs передается текущий пользователь в форму
+        """
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
     def form_valid(self, form):
         form = AnnouncementForm(self.request.POST)  # данные формы
         form_announce = form.save(commit=False)
@@ -41,9 +50,12 @@ class DetailAnnouncement(DetailView):
     model = Announcement
     template_name = 'announce.html'
     context_object_name = 'announce'
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        # фильтр по пользователю должен быть не по модели, а по атрибуту модели, так как у незарегистрированного
+        # пользователя модель AnnonimousUser, а атрибут user связан с моделью User, из-за чего будет ошибка.
+        # При фильтации по аттрибуту модели передаются значения атрибутов, а не объекты модели и ошибки не будет
         context['sent_response'] = ResponseToAnnounce.objects.all().filter(response_announcement__pk=self.kwargs['pk'],
                                                                            user__id=self.request.user.id)
         context['all_responses'] = ResponseToAnnounce.objects.all().filter(response_announcement__pk=self.kwargs['pk'])
@@ -56,17 +68,17 @@ class UpdateAnnouncement(UpdateView):
     template_name = 'edit_announcement.html'
 
 
-class AddResponse(CreateView):
+class AddResponse(CreateView):  # TODO должно быть доступно только зарегистрированным пользователям
     form_class = ResponseForm
     model = ResponseToAnnounce
     template_name = 'add_response.html'
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['responses'] = ResponseToAnnounce.objects.all().filter(response_announcement__pk=self.kwargs['pk'],
                                                                        user=self.request.user)
         return context
-    
+
     def post(self, request, *args, **kwargs):
         # ограничим возможность отправки нескольких откликов одним пользователем на одно и то же объявление
         sent_response = ResponseToAnnounce.objects.all().filter(response_announcement__pk=self.kwargs['pk'],
@@ -75,7 +87,7 @@ class AddResponse(CreateView):
             # В шаблоне будет выведено сообщение, что отклик уже был отправлен
             return redirect('add_response', pk=self.kwargs['pk'])
         return super().post(self, request, *args, **kwargs)
-    
+
     # в форме нельзя выбрать к какому объявлению мы отправляем отклик, подставляем тут:
     def form_valid(self, form):
         announce = Announcement.objects.get(id=self.kwargs['pk'])  # получаем объявление, на которое отправляем отклик
@@ -87,12 +99,12 @@ class AddResponse(CreateView):
         return super().form_valid(form)
 
 
-class ResponseList(ListView):
+class ResponseList(ListView):  # TODO должно быть доступно только зарегистрированным пользователям
     model = ResponseToAnnounce
     ordering = '-id'
     template_name = 'resp_to_my_announce.html'
     context_object_name = 'my_responses'
-    
+
     def get(self, request, *args, **kwargs):
         response = ResponseToAnnounce.objects.get(pk=request.GET['resp_id'])
         # get('button') чтобы не получать ошибку при переходе на страницу при отсутствии в request.GET ключа button
@@ -101,14 +113,14 @@ class ResponseList(ListView):
         elif request.GET.get('button') == 'Отклонить':
             response.decline()
         return super().get(self, request, *args, **kwargs)
-    
+
     def get_queryset(self):
         queryset = super().get_queryset()
         self.filterset = ResponseFilter(self.request.GET, queryset)  # фильтр откликов в шаблоне для пользователя
         self.new_response = self.filterset.qs.exclude(accepted=False).filter(
             response_announcement__author=self.request.user)  # показываем только новые и принятые отклики
         return self.new_response
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['filterset'] = self.filterset
@@ -117,17 +129,17 @@ class ResponseList(ListView):
 
 
 # @login_required
-class MyAnnounce(ListView):
+class MyAnnounce(ListView):  # TODO должно быть доступно только зарегистрированным пользователям
     model = Announcement
     ordering = '-published_date'
     template_name = 'my_announcement.html'
     context_object_name = 'my_announce'
-    
+
     def get_queryset(self):
         user = self.request.user
         queryset = Announcement.objects.filter(author=user)
         return queryset
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # получаем все отклики, которые оставил пользователь
