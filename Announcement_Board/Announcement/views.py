@@ -36,6 +36,7 @@ class CreateAnnouncement(CreateView):
         """
         kwargs = super().get_form_kwargs()
         kwargs['user'] = self.request.user
+        print('get_form_kwargs:', kwargs['user'])
         return kwargs
 
     def form_valid(self, form):
@@ -52,10 +53,15 @@ class DetailAnnouncement(DetailView):
     context_object_name = 'announce'
 
     def get_context_data(self, **kwargs):
+        """
+        В контекст добавляем параметр sent_response, в котором находится отклик пользователя или пустое значение,
+        при его отсутствии.
+        Т.к. на страницу могут войти незарегистрированные пользователи, фильтр откликов должен быть не по модели,
+        а по атрибуту модели, так как у незарегистрированного пользователя модель AnnonimousUser, а атрибут user
+        связан с моделью User, из-за чего будет ошибка.
+        При фильтации по аттрибуту модели передаются значения атрибутов, а не объекты модели и ошибки не будет.
+        """
         context = super().get_context_data(**kwargs)
-        # фильтр по пользователю должен быть не по модели, а по атрибуту модели, так как у незарегистрированного
-        # пользователя модель AnnonimousUser, а атрибут user связан с моделью User, из-за чего будет ошибка.
-        # При фильтации по аттрибуту модели передаются значения атрибутов, а не объекты модели и ошибки не будет
         context['sent_response'] = ResponseToAnnounce.objects.all().filter(response_announcement__pk=self.kwargs['pk'],
                                                                            user__id=self.request.user.id)
         context['all_responses'] = ResponseToAnnounce.objects.all().filter(response_announcement__pk=self.kwargs['pk'])

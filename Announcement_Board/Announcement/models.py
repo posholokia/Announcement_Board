@@ -24,7 +24,8 @@ class Announcement(models.Model):
     text = RichTextUploadingField(null=True, config_name='default')
     published_date = models.DateField(auto_now_add=True)
     sent_mail = models.BooleanField(default=False)
-    
+    opportunity_to_response = models.BooleanField(default=False)
+
     def get_absolute_url(self):
         return reverse('announce', args=[str(self.id)])
 
@@ -40,7 +41,7 @@ class ResponseToAnnounce(models.Model):
     user = models.ForeignKey(User, related_name='user', on_delete=models.CASCADE)
     text = models.TextField(max_length=256)
     accepted = models.BooleanField(null=True, default=None)
-    
+
     def accept(self):
         self.accepted = True
         self.save()

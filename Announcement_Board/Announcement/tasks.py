@@ -45,4 +45,23 @@ def send_mail_accept_resp(email, announce, pk, username):
     )
     msg.attach_alternative(html_content, "text/html")
     msg.send()
-    
+
+
+@shared_task
+def send_mailing(email, title, pk, text):
+    html_content = render_to_string(
+        'send_mailing.html',
+        {
+            'title': title,
+            'text': text,
+            'link': f'{settings.SITE_URL}/board/{pk}/'
+        }
+    )
+    msg = EmailMultiAlternatives(
+        subject='Новое объявление от MMORPG',
+        body='',
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=email,
+    )
+    msg.attach_alternative(html_content, "text/html")
+    msg.send()
