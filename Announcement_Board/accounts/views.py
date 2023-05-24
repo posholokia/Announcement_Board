@@ -1,5 +1,5 @@
 from django.shortcuts import render
-
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.views.generic.edit import CreateView
 from django.views.generic.detail import DetailView
@@ -13,7 +13,7 @@ class SignUp(CreateView):
     template_name = 'registration/signup.html'
 
 
-class Profile(DetailView):
+class Profile(LoginRequiredMixin, DetailView):
     model = User
     template_name = 'lk.html'
     context_object_name = 'profile'

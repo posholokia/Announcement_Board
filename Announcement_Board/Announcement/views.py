@@ -1,7 +1,7 @@
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-
+from django.contrib.auth.mixins import LoginRequiredMixin
 from .filters import ResponseFilter
 from .forms import AnnouncementForm, ResponseForm
 from .models import Announcement, ResponseToAnnounce
@@ -15,13 +15,13 @@ class AnnouncementList(ListView):
     template_name = 'announcement_list.html'
     context_object_name = 'list'
 
-    def get_queryset(self):  # сортировка по категориям на главной по ссылкам в
+    def get_queryset(self):  # сортировка по категориям на главной по ссылкам
         category = self.kwargs.get('category', None)
         if category:
             queryset = Announcement.objects.filter(category=category)
         else:
             queryset = Announcement.objects.all()
-        return queryset
+        return queryset.order_by(self.ordering)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -29,7 +29,7 @@ class AnnouncementList(ListView):
         return context
 
 
-class CreateAnnouncement(CreateView):
+class CreateAnnouncement(LoginRequiredMixin, CreateView):
     form_class = AnnouncementForm
     model = Announcement
     template_name = 'create_announcement.html'
@@ -73,13 +73,13 @@ class DetailAnnouncement(DetailView):
         return context
 
 
-class UpdateAnnouncement(UpdateView):
+class UpdateAnnouncement(LoginRequiredMixin, UpdateView):
     form_class = AnnouncementForm
     model = Announcement
     template_name = 'edit_announcement.html'
 
 
-class AddResponse(CreateView):  # TODO должно быть доступно только зарегистрированным пользователям
+class AddResponse(LoginRequiredMixin, CreateView):
     form_class = ResponseForm
     model = ResponseToAnnounce
     template_name = 'add_response.html'
@@ -110,19 +110,21 @@ class AddResponse(CreateView):  # TODO должно быть доступно т
         return super().form_valid(form)
 
 
-class ResponseList(ListView):  # TODO должно быть доступно только зарегистрированным пользователям
+class ResponseList(LoginRequiredMixin, ListView):
     model = ResponseToAnnounce
     ordering = '-id'
     template_name = 'resp_to_my_announce.html'
     context_object_name = 'my_responses'
 
     def get(self, request, *args, **kwargs):
-        response = ResponseToAnnounce.objects.get(pk=request.GET['resp_id'])
         # get('button') чтобы не получать ошибку при переходе на страницу при отсутствии в request.GET ключа button
-        if request.GET.get('button') == 'Принять':  # помечаем отклики как принятые/отклоненные
-            response.accept()
-        elif request.GET.get('button') == 'Отклонить':
-            response.decline()
+        if request.GET.get('button'):
+            button = request.GET.get('button')
+            response = ResponseToAnnounce.objects.get(pk=request.GET['resp_id'])
+            if button == 'Принять':  # помечаем отклики как принятые/отклоненные
+                response.accept()
+            elif button == 'Отклонить':
+                response.decline()
         return super().get(self, request, *args, **kwargs)
 
     def get_queryset(self):
@@ -130,7 +132,7 @@ class ResponseList(ListView):  # TODO должно быть доступно т�
         self.filterset = ResponseFilter(self.request.GET, queryset)  # фильтр откликов в шаблоне для пользователя
         self.new_response = self.filterset.qs.exclude(accepted=False).filter(
             response_announcement__author=self.request.user)  # показываем только новые и принятые отклики
-        return self.new_response
+        return self.new_response.order_by(self.ordering)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -140,7 +142,7 @@ class ResponseList(ListView):  # TODO должно быть доступно т�
 
 
 # @login_required
-class MyAnnounce(ListView):  # TODO должно быть доступно только зарегистрированным пользователям
+class MyAnnounce(LoginRequiredMixin, ListView):
     model = Announcement
     ordering = '-published_date'
     template_name = 'my_announcement.html'
@@ -149,7 +151,7 @@ class MyAnnounce(ListView):  # TODO должно быть доступно то�
     def get_queryset(self):
         user = self.request.user
         queryset = Announcement.objects.filter(author=user)
-        return queryset
+        return queryset.order_by(self.ordering)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
