@@ -14,7 +14,7 @@ class AnnouncementForm(forms.ModelForm):
         Необходимо значение по умолчанию когда ключ отсутсвует, т.к. __init__ вызывается дважды: при переходе
         на страницу и после отправке формы.
         sent_mail=False в модели по умолчанию
-        opportunity_to_response=False в модели по умолчанию
+        opportunity_to_response=True в модели по умолчанию
         """
         user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)

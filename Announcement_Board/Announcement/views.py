@@ -23,6 +23,11 @@ class AnnouncementList(ListView):
             queryset = Announcement.objects.all()
         return queryset
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['promotion'] = Announcement.objects.all().filter(author__username='admin').order_by('-published_date')[0]
+        return context
+
 
 class CreateAnnouncement(CreateView):
     form_class = AnnouncementForm

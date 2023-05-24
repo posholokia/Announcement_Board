@@ -16,7 +16,7 @@ Category: {{ announce.get_category_display }}
 <p>Announce: {{ announce.text }}
 <hr>
 <!--проверяем, что на объявление можно отправлять отклик-->
-{% if not announce.opportunity_to_response %}
+{% if announce.opportunity_to_response %}
     Уже откликнулось: {{ all_responses|slice_qs:announce|length }}
     <!--отклик доступен только зарегистрированному пользователю и недоступен самому автору объявления -->
     {% if request.user.is_authenticated and announce.author != request.user %}

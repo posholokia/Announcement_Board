@@ -1,5 +1,17 @@
 {% extends 'flatpages/default.html' %}
 
+{% block headnews %}
+{% autoescape off %}
+    <div class="p-4 p-md-5 mb-4 text-white rounded bg-dark">
+    <div class="col-md-6 px-0">
+      <h1 class="display-4 fst-italic">{{ promotion.title }}</h1>
+      <p class="lead my-3">{{ promotion.text|truncatewords:14 }}</p>
+      <p class="lead mb-0"><a href="{% url 'announce' pk=promotion.id %}" class="text-white fw-bold">Читать полностью</a></p>
+    </div>
+    </div>
+{% endautoescape %}
+{% endblock headnews %}
+
 {% block content %}
 announcement_list.html
 {% autoescape off %}
@@ -14,5 +26,6 @@ announcement_list.html
 
 {% endautoescape %}
 {% endblock content %}
+
 
 
