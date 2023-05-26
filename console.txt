@@ -35,3 +35,7 @@ git remote add origin https://github.com/posholokia/announce_board.git
 git push origin main
 all().
 User.objects.values_list('email').exclude(email='')
+ResponseToAnnounce.objects.none()
+
+
+

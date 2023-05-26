@@ -41,6 +41,7 @@ class ResponseToAnnounce(models.Model):
     user = models.ForeignKey(User, related_name='user', on_delete=models.CASCADE)
     text = models.TextField(max_length=256)
     accepted = models.BooleanField(null=True, default=None)
+    date_time_resp = models.DateTimeField(auto_now_add=True, null=True)
 
     def accept(self):
         self.accepted = True

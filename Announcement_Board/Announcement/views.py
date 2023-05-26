@@ -128,11 +128,11 @@ class ResponseList(LoginRequiredMixin, ListView):
         return super().get(self, request, *args, **kwargs)
 
     def get_queryset(self):
-        queryset = super().get_queryset()
+        queryset = ResponseToAnnounce.objects.filter(response_announcement__author=self.request.user)
         self.filterset = ResponseFilter(self.request.GET, queryset)  # фильтр откликов в шаблоне для пользователя
         self.new_response = self.filterset.qs.exclude(accepted=False).filter(
             response_announcement__author=self.request.user)  # показываем только новые и принятые отклики
-        return self.new_response.order_by(self.ordering)
+        return self.filterset.qs.order_by(self.ordering)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

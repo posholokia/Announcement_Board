@@ -17,3 +17,8 @@ class Profile(LoginRequiredMixin, DetailView):
     model = User
     template_name = 'lk.html'
     context_object_name = 'profile'
+
+    def get(self, *args, **kwargs):
+        print(self.request.user.is_staff)
+        print(User.objects.all().filter(is_staff=True))
+        return super().get(self, *args, **kwargs)

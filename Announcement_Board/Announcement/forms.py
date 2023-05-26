@@ -8,7 +8,7 @@ class AnnouncementForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         """
         При инициализации формы проверяем к какой группе относится пользователь.
-        Для суперюзера в форме появляется поле для отправки письма всем пользователям.
+        Для персонала в форме появляется поле для отправки письма всем пользователям.
         Полученный kwargs должен быть удален, т.к. в __init__ родительского класса он отсутсвует,
         иначе будет ошибка инициализации формы.
         Необходимо значение по умолчанию когда ключ отсутсвует, т.к. __init__ вызывается дважды: при переходе
@@ -18,7 +18,7 @@ class AnnouncementForm(forms.ModelForm):
         """
         user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
-        if user not in User.objects.filter(username='admin'):  # TODO изменить на группу пользователей
+        if user not in User.objects.filter(is_staff=True):
             self.fields['sent_mail'].widget = forms.HiddenInput()
             self.fields['opportunity_to_response'].widget = forms.HiddenInput()
 
