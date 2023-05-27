@@ -1,0 +1,37 @@
+{% extends 'flatpages/default.html' %}
+
+{% block cat %}
+{% endblock cat %}
+
+{% block headnews %}
+{% endblock headnews %}
+<!-- Отключение экранирования, чтобы не выводились html теги вместо видео -->
+
+{% block content %}
+
+my_responses.html
+<table>
+    <tr>
+        <th>Отклик</th>
+        <th>Объявление</th>
+        <th>Статус</th>
+    </tr>
+{% for response in my_responses %}
+    <tr>
+        <th>{{ response }} </th>
+        <th>
+            <a href ="{% url 'announce' pk=response.response_announcement.id %}">{{ response.response_announcement }}</a>
+        </th>
+        <th>
+            {% if response.accepted == True %}
+                <div class="btn-success">Принято</div>
+            {% elif response.accepted == False %}
+                <div class="btn-dark">Отклонен</div>
+            {% else %}
+                <div class="btn-light">Не рассмотрено</div>
+            {% endif %}
+        </th>
+    </tr>
+{% endfor %}
+</table>
+{% endblock content %}

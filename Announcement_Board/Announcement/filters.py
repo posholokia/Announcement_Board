@@ -6,7 +6,7 @@ from django.forms.widgets import DateInput
 class ResponseFilter(FilterSet):
     announce_title = CharFilter(field_name='response_announcement__title',
                                 label='Заголовок объявления',
-                                lookup_expr='iexact')  # TODO доделать фильтры
+                                lookup_expr='iexact')
     announce_date = DateFilter(field_name='date_time_resp',
                                label='Дата отклика',
                                lookup_expr='date',

@@ -110,11 +110,11 @@ class AddResponse(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class ResponseList(LoginRequiredMixin, ListView):
+class ResponsesToMyAnnounce(LoginRequiredMixin, ListView):
     model = ResponseToAnnounce
     ordering = '-id'
     template_name = 'resp_to_my_announce.html'
-    context_object_name = 'my_responses'
+    context_object_name = 'responses'
 
     def get(self, request, *args, **kwargs):
         # get('button') чтобы не получать ошибку при переходе на страницу при отсутствии в request.GET ключа button
@@ -139,6 +139,17 @@ class ResponseList(LoginRequiredMixin, ListView):
         context['filterset'] = self.filterset
         context['new_response'] = self.new_response
         return context
+
+
+class MyResponsesList(LoginRequiredMixin, ListView):
+    model = ResponseToAnnounce
+    ordering = '-id'
+    template_name = 'my_responses.html'
+    context_object_name = 'my_responses'
+
+    def get_queryset(self):
+        queryset = ResponseToAnnounce.objects.filter(user=self.request.user)
+        return queryset.order_by(self.ordering)
 
 
 # @login_required
