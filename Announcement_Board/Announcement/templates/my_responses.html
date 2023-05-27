@@ -10,6 +10,10 @@
 {% block content %}
 
 my_responses.html
+<form action="" method="get">
+    {{ filterset.form.as_p }}
+    <input type="submit" value="Найти" />
+</form>
 <table>
     <tr>
         <th>Отклик</th>
@@ -23,9 +27,9 @@ my_responses.html
             <a href ="{% url 'announce' pk=response.response_announcement.id %}">{{ response.response_announcement }}</a>
         </th>
         <th>
-            {% if response.accepted == True %}
+            {% if response.accepted == 1 %}
                 <div class="btn-success">Принято</div>
-            {% elif response.accepted == False %}
+            {% elif response.accepted == 2 %}
                 <div class="btn-dark">Отклонен</div>
             {% else %}
                 <div class="btn-light">Не рассмотрено</div>

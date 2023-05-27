@@ -40,15 +40,17 @@ class ResponseToAnnounce(models.Model):
     response_announcement = models.ForeignKey('Announcement', related_name='response', on_delete=models.CASCADE)
     user = models.ForeignKey(User, related_name='user', on_delete=models.CASCADE)
     text = models.TextField(max_length=256)
-    accepted = models.BooleanField(null=True, default=None)
+    # accepted должно иметь 3 статуса, поэтому вместо Boolean реализовано через Integer
+    # 0 - не рассмотрено, 1 - принято, 2 - отклонено.
+    accepted = models.IntegerField(default=0)
     date_time_resp = models.DateTimeField(auto_now_add=True, null=True)
 
     def accept(self):
-        self.accepted = True
+        self.accepted = 1
         self.save()
         
     def decline(self):
-        self.accepted = False
+        self.accepted = 2
         self.save()
     
     def get_absolute_url(self):

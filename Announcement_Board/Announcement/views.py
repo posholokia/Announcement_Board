@@ -2,7 +2,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .filters import ResponseFilter
+from .filters import RespToMyAnnounceFilter, MyResponseFilter
 from .forms import AnnouncementForm, ResponseForm
 from .models import Announcement, ResponseToAnnounce
 from django.urls import reverse
@@ -129,10 +129,9 @@ class ResponsesToMyAnnounce(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         queryset = ResponseToAnnounce.objects.filter(response_announcement__author=self.request.user)
-        self.filterset = ResponseFilter(self.request.GET, queryset)  # фильтр откликов в шаблоне для пользователя
-        self.new_response = self.filterset.qs.exclude(accepted=False).filter(
-            response_announcement__author=self.request.user)  # показываем только новые и принятые отклики
-        return self.filterset.qs.order_by(self.ordering)
+        self.filterset = RespToMyAnnounceFilter(self.request.GET, queryset)  # фильтр откликов в шаблоне для пользователя
+        self.new_response = self.filterset.qs.exclude(accepted=2)  # показываем только новые и принятые отклики
+        return self.new_response.order_by(self.ordering)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -149,8 +148,13 @@ class MyResponsesList(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         queryset = ResponseToAnnounce.objects.filter(user=self.request.user)
-        return queryset.order_by(self.ordering)
+        self.filterset = MyResponseFilter(self.request.GET, queryset)
+        return self.filterset.qs.order_by(self.ordering)
 
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data()
+        context['filterset'] = self.filterset
+        return context
 
 # @login_required
 class MyAnnounce(LoginRequiredMixin, ListView):
