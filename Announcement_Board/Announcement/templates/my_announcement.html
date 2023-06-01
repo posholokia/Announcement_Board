@@ -12,9 +12,9 @@ my_announcement.html
 <p><a href="{% url 'responses' %}">Все отклики</a></p>
 Список обьявлений
 {% for announce in my_announce %}
-<p>Объявление: {{ announce }}  |  Отклики : {{ response|slice_qs:announce|length }}
+<p>Объявление: {{ announce }}  |  Новые отклики : {{ response|slice_qs:announce|length }}
     {% if response|slice_qs:announce|length > 0 %}
-        <a href="{% url 'responses' %}?announce_title={{ announce.title }}">Просмотреть</a>
+        <a href="{% url 'responses' %}?announce_title={{ announce.title }}&accepted=0">Просмотреть</a>
     {% endif %}
 {% endfor %}
 

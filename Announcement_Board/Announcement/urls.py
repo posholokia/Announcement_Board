@@ -8,6 +8,7 @@ urlpatterns = [
     path('board/my_announcement/', MyAnnounce.as_view(), name='my_announce'),
     path('board/', AnnouncementList.as_view(), name='list'),
     path('board/my_announcement/responses/', ResponsesToMyAnnounce.as_view(), name='responses'),
+    # path('board/my_announcement/responses/accept_response/', accept_response, name='accept_response'),
     path('board/my_responses/', MyResponsesList.as_view(), name='my_responses'),
     path('board/<int:pk>/', DetailAnnouncement.as_view(), name='announce'),
     path('board/<str:category>/', AnnouncementList.as_view(), name='category'),

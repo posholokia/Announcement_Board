@@ -7,7 +7,7 @@ from .forms import AnnouncementForm, ResponseForm
 from .models import Announcement, ResponseToAnnounce
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
-
+from django.http import Http404
 
 class AnnouncementList(ListView):
     model = Announcement
@@ -41,7 +41,6 @@ class CreateAnnouncement(LoginRequiredMixin, CreateView):
         """
         kwargs = super().get_form_kwargs()
         kwargs['user'] = self.request.user
-        print('get_form_kwargs:', kwargs['user'])
         return kwargs
 
     def form_valid(self, form):
@@ -84,6 +83,17 @@ class AddResponse(LoginRequiredMixin, CreateView):
     model = ResponseToAnnounce
     template_name = 'add_response.html'
 
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Возвращает ошибку 404 если к объявлению нельзя отправить отклик
+        obj: объект объявления
+        opportunity_to_response: True or False - возможность оставлять отклик
+        """
+        obj = Announcement.objects.get(id=self.kwargs['pk'])
+        if not obj.opportunity_to_response:
+            raise Http404()
+        return super().dispatch(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['responses'] = ResponseToAnnounce.objects.all().filter(response_announcement__pk=self.kwargs['pk'],
@@ -117,26 +127,34 @@ class ResponsesToMyAnnounce(LoginRequiredMixin, ListView):
     context_object_name = 'responses'
 
     def get(self, request, *args, **kwargs):
+        print(request.META.get('HTTP_REFERER'))
         # get('button') чтобы не получать ошибку при переходе на страницу при отсутствии в request.GET ключа button
         if request.GET.get('button'):
             button = request.GET.get('button')
             response = ResponseToAnnounce.objects.get(pk=request.GET['resp_id'])
             if button == 'Принять':  # помечаем отклики как принятые/отклоненные
                 response.accept()
+                return redirect(request.META['HTTP_REFERER'])
             elif button == 'Отклонить':
                 response.decline()
+                return redirect(request.META['HTTP_REFERER'])
+        # if request.META.get('HTTP_REFERER') != 'http://127.0.0.1:8000/board/my_announcement/':
+        #
+        #     return redirect(request.META['HTTP_REFERER'])
+
         return super().get(self, request, *args, **kwargs)
 
     def get_queryset(self):
         queryset = ResponseToAnnounce.objects.filter(response_announcement__author=self.request.user)
         self.filterset = RespToMyAnnounceFilter(self.request.GET, queryset)  # фильтр откликов в шаблоне для пользователя
         self.new_response = self.filterset.qs.exclude(accepted=2)  # показываем только новые и принятые отклики
-        return self.new_response.order_by(self.ordering)
+        return self.filterset.qs.order_by(self.ordering)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['filterset'] = self.filterset
         context['new_response'] = self.new_response
+        context['referer'] = self.request.META
         return context
 
 
@@ -172,7 +190,7 @@ class MyAnnounce(LoginRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         # получаем все отклики, которые оставил пользователь
         context['response'] = ResponseToAnnounce.objects.filter(
-            response_announcement__author=self.request.user).exclude(accepted=False)
+            response_announcement__author=self.request.user).filter(accepted=0)
         return context
 
 
@@ -187,3 +205,15 @@ def remove_response(request, pk):
 
 def to_home_page(request):  # перенаправление с SITE_URL на домашнюю страницу
     return redirect('list')
+
+
+def accept_response(request):
+    # get('button') чтобы не получать ошибку при переходе на страницу при отсутствии в request.GET ключа button
+    if request.GET.get('button'):
+        button = request.GET.get('button')
+        response = ResponseToAnnounce.objects.get(pk=request.GET['resp_id'])
+        if button == 'Принять':  # помечаем отклики как принятые/отклоненные
+            response.accept()
+        elif button == 'Отклонить':
+            response.decline()
+    return HttpResponseRedirect(reverse('responses'))
