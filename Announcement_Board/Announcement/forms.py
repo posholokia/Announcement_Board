@@ -11,14 +11,14 @@ class AnnouncementForm(forms.ModelForm):
         Для персонала в форме появляется поле для отправки письма всем пользователям.
         Полученный kwargs должен быть удален, т.к. в __init__ родительского класса он отсутсвует,
         иначе будет ошибка инициализации формы.
-        Необходимо значение по умолчанию когда ключ отсутсвует, т.к. __init__ вызывается дважды: при переходе
-        на страницу и после отправке формы.
-        sent_mail=False в модели по умолчанию
-        opportunity_to_response=True в модели по умолчанию
+        Необходимо значение по умолчанию в переменной user когда ключ отсутсвует, т.к. __init__ вызывается дважды:
+        при переходе на страницу и после отправке формы.
+        sent_mail: в модели по умолчанию False, поле видно только группе administators
+        opportunity_to_response: в модели по умолчанию True, поле видно только группе administators
         """
         user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
-        if user not in User.objects.filter(is_staff=True):
+        if not user.groups.filter(name='administators').exists():
             self.fields['sent_mail'].widget = forms.HiddenInput()
             self.fields['opportunity_to_response'].widget = forms.HiddenInput()
 

@@ -1,11 +1,13 @@
 {% extends 'flatpages/default.html' %}
 
+{% load custom_tags %}
+
 {% block cat %}
 {% endblock cat %}
 
 {% block headnews %}
 {% endblock headnews %}
-<!-- Отключение экранирования, чтобы не выводились html теги вместо видео -->
+
 
 {% block content %}
 
@@ -38,4 +40,24 @@ my_responses.html
     </tr>
 {% endfor %}
 </table>
+Страницы:
+{% if page_obj.has_previous %}
+    <a href="?{% url_replace page=1 %}">1</a>
+        {% if page_obj.previous_page_number != 1 %}
+            ...
+            <a href="?{% url_replace page=page_obj.previous_page_number %}">{{ page_obj.previous_page_number }}</a>
+        {% endif %}
+{% endif %}
+
+{# Информация о текущей странице #}
+{{ page_obj.number }}
+
+{# Информация о следующих страницах #}
+{% if page_obj.has_next %}
+    <a href="?{% url_replace page=page_obj.next_page_number %}">{{ page_obj.next_page_number }}</a>
+    {% if paginator.num_pages != page_obj.next_page_number %}
+        ...
+        <a href="?{% url_replace page=page_obj.paginator.num_pages %}">{{ page_obj.paginator.num_pages }}</a>
+    {% endif %}
+{% endif %}
 {% endblock content %}

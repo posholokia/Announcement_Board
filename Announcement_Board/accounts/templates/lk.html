@@ -9,11 +9,9 @@
 
 {% block content %}
 lk.html
-<p>Аватар который еще не сделан</p>
 <p>Имя пользователя: {{ request.user.username }}</p>
 <p>E-mail: {{ request.user.email }}</p>
-<p><a href="#">Редактировать профиль</a></p>
-
+<p><a href="{% url 'account_change_password' %}">Сменить пароль</a></p>
 <p><a href="{% url 'my_announce' %}">Мои объявления</a></p>
 <p><a href="{% url 'my_responses' %}">Мои отклики</a></p>
 {% endblock content %}

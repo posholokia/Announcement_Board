@@ -1,0 +1,15 @@
+{% extends 'flatpages/default.html' %}
+
+{% block cat %}
+{% endblock cat %}
+
+{% block headnews %}
+{% endblock headnews %}
+
+{% block content %}
+<form action="" method="post">
+    {% csrf_token %}
+    <p>Вы действительно хотите удалить объявление "{{ object.title }}"?</p>
+    <input type="submit" value="Delete" />
+</form>
+{% endblock content %}

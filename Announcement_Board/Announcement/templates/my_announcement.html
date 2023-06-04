@@ -12,11 +12,32 @@ my_announcement.html
 <p><a href="{% url 'responses' %}">Все отклики</a></p>
 Список обьявлений
 {% for announce in my_announce %}
-<p>Объявление: {{ announce }}  |  Новые отклики : {{ response|slice_qs:announce|length }}
-    {% if response|slice_qs:announce|length > 0 %}
+<p>Дата: {{announce.date }} | Объявление: <a href="{% url 'announce' pk=announce.id %}">{{ announce }}</a>
+    |  Новые отклики : {{ response|slice_qs:announce }}
+    {% if response|slice_qs:announce > 0 %}
         <a href="{% url 'responses' %}?announce_title={{ announce.title }}&accepted=0">Просмотреть</a>
     {% endif %}
 {% endfor %}
+<br>
+Страницы:
+{% if page_obj.has_previous %}
+    <a href="?page=1">1</a>
+        {% if page_obj.previous_page_number != 1 %}
+            ...
+            <a href="?page={{ page_obj.previous_page_number }}">{{ page_obj.previous_page_number }}</a>
+        {% endif %}
+{% endif %}
 
+{# Информация о текущей странице #}
+{{ page_obj.number }}
+
+{# Информация о следующих страницах #}
+{% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}">{{ page_obj.next_page_number }}</a>
+    {% if paginator.num_pages != page_obj.next_page_number %}
+        ...
+        <a href="?page={{ page_obj.paginator.num_pages }}">{{ page_obj.paginator.num_pages }}</a>
+    {% endif %}
+{% endif %}
 
 {% endblock content %}
