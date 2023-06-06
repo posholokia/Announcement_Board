@@ -27,6 +27,7 @@ class AnnouncementList(ListView):
             queryset = Announcement.objects.filter(category=category)
         else:
             queryset = Announcement.objects.all()
+            super().get_queryset()
         return queryset.order_by(self.ordering)
 
     def get_context_data(self, **kwargs):
@@ -54,7 +55,6 @@ class CreateAnnouncement(LoginRequiredMixin, CreateView):
         return kwargs
 
     def form_valid(self, form):
-        form = AnnouncementForm(self.request.POST)  # данные формы
         form_announce = form.save(commit=False)
         form_announce.author = self.request.user  # подставляем текущего юера в поле автор
         form_announce.save()
@@ -138,7 +138,6 @@ class AddResponse(LoginRequiredMixin, CreateView):
     # в форме нельзя выбрать к какому объявлению мы отправляем отклик, подставляем тут:
     def form_valid(self, form):
         announce = Announcement.objects.get(id=self.kwargs['pk'])  # получаем объявление, на которое отправляем отклик
-        form = ResponseForm(self.request.POST)  # получаем значения полей fields из формы
         form_announce = form.save(commit=False)
         form_announce.response_announcement = announce  # дополняем форму объявлением, на которое отправлен отклик
         form_announce.user = self.request.user  # и юзером
