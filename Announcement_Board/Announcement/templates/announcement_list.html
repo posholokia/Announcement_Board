@@ -20,7 +20,7 @@ announcement_list.html
 <article class="blog-post">
     {% for announce in list %}
         <h2 class="blog-post-title"><a href="{% url 'announce' pk=announce.id %}">{{ announce.title }}</a></h2>
-        <p class="blog-post-meta">{{ announce.published_date }} | {{ announce.get_category_display }}</p>
+        <p class="blog-post-meta">{{ announce.date }} | {{ announce.get_category_display }}</p>
         <p>{{ announce.preview }}</p>
     {% endfor %}
 </article>

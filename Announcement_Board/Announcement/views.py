@@ -23,12 +23,10 @@ class AnnouncementList(ListView):
         если нет, то выводим все объявления
         """
         category = self.kwargs.get('category', None)
+        queryset = super().get_queryset()
         if category:
-            queryset = Announcement.objects.filter(category=category)
-        else:
-            queryset = Announcement.objects.all()
-            super().get_queryset()
-        return queryset.order_by(self.ordering)
+            queryset = queryset.filter(category=category)
+        return queryset
 
     def get_context_data(self, **kwargs):
         """
@@ -153,40 +151,55 @@ class ResponsesToMyAnnounce(LoginRequiredMixin, ListView):
     ordering = '-id'
     template_name = 'resp_to_my_announce.html'
     context_object_name = 'responses'
-    paginate_by = 10
+    paginate_by = 1
 
     def get(self, request, *args, **kwargs):
         """
-        Обработка нажатия кнопки Принять/Отклонить отклик.
-        После обработки кнопки для сохранения фильтации и пагинации возвращает на тот же url
+        Обработка нажатия кнопки Принять/Отклонить отклик и сохрание фильтрации/пагинации после обработки GET-запроса
+        button_press: присваивает отклику значение Принято/Отклонено и возвращает на тот же url
         где находился пользователь при нажатии кнопки.
-        Если из-за фильтации количество страниц в пагинации стало меньше, и пользователь был на последней странице,
-        которой больше нет, в конструкции try-except корректируется url
+        go_last_page: перенаправление пользователя на последнююю страницу в пагинации
+        Срабатывает когда пользователя перенаправляет на страницу, которой уже нет, например из-за примененных фильтров
         """
         if request.GET.get('button'):
             button = request.GET.get('button')
-            response = ResponseToAnnounce.objects.get(pk=request.GET['resp_id'])
-            if button == 'Принять':  # помечаем отклики как принятые/отклоненные
-                response.accept()
-                return redirect(request.META['HTTP_REFERER'])
-            elif button == 'Отклонить':
-                response.decline()
-                return redirect(request.META['HTTP_REFERER'])
+            return self.button_press(button, request)
         try:
             return super().get(self, request, *args, **kwargs)
         except Http404:
-            url = request.META.get('HTTP_REFERER')
-            last_page = url.split('page=')[1]
-            url = url.replace(f'page={last_page}', f'page={int(last_page) - 1}')
-            return redirect(url)
+            return self.go_last_page(request)
+
+    @staticmethod
+    def button_press(button, request):
+        previous_url = request.META['HTTP_REFERER']
+        response = ResponseToAnnounce.objects.get(pk=request.GET['resp_id'])
+        if button == 'Принять':
+            response.accept()
+            return redirect(previous_url)
+        else:
+            response.decline()
+            return redirect(previous_url)
+
+    @staticmethod
+    def go_last_page(request):
+        """
+        исправляет url, куда перенаправляется пользователь, когда страницы previous_url больше нет
+        previous_url: url адрес в момент нажатия кнопки
+        В previous_url ищем номер страницы и уменьшаем его на 1
+        """
+        previous_url = request.META['HTTP_REFERER']
+        last_page = previous_url.split('page=')[1]
+        url = previous_url.replace(f'page={last_page}', f'page={int(last_page) - 1}')
+        return redirect(url)
 
     def get_queryset(self):
         """
         queryset: отклики на объявления которые опубликованы текущим пользователем
         """
-        queryset = ResponseToAnnounce.objects.filter(response_announcement__author=self.request.user)
+        queryset = super().get_queryset()
+        queryset = queryset.filter(response_announcement__author=self.request.user)
         self.filterset = ResponseFilter(self.request.GET, queryset)  # фильтр откликов в шаблоне для пользователя
-        return self.filterset.qs.order_by(self.ordering)
+        return self.filterset.qs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -205,9 +218,9 @@ class MyResponsesList(LoginRequiredMixin, ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        queryset = ResponseToAnnounce.objects.filter(user=self.request.user)
+        queryset = super().get_queryset().filter(user=self.request.user)
         self.filterset = ResponseFilter(self.request.GET, queryset)
-        return self.filterset.qs.order_by(self.ordering)
+        return self.filterset.qs
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data()
@@ -227,8 +240,8 @@ class MyAnnounce(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         user = self.request.user
-        queryset = Announcement.objects.filter(author=user)  # объявления созданные текущим пользователем
-        return queryset.order_by(self.ordering)
+        queryset = super().get_queryset().filter(author=user)  # объявления созданные текущим пользователем
+        return queryset
 
     def get_context_data(self, **kwargs):
         """
